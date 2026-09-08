@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fireviewer-vision-runtime"
+version = "0.1.0"
+description = "Specialized model inference and video keyframe extraction."
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = "AGPL-3.0-or-later"
+dependencies = [
+  "fireviewer-contracts==0.1.0",
+  "fireviewer-geolocation==0.1.0",
+  "httpx==0.28.1",
+  "numpy==2.4.6",
+  "Pillow==12.3.0",
+  "boto3==1.43.50"
+]
+
+[project.optional-dependencies]
+dev = ["pytest==9.0.3", "ruff==0.15.21", "jsonschema==4.26.0"]
+"vision-mvp" = [
+  "pillow==12.3.0",
+  "psutil==7.2.2",
+  "safetensors==0.8.0",
+  "torch==2.13.0",
+  "torchvision==0.28.0",
+  "transformers==4.57.6"
+]
+"burned-area-runtime" = [
+  "pyyaml==6.0.3",
+  "rasterio==1.4.4",
+  "terratorch==1.2.10"
+]
+"detector-benchmark" = [
+  "torchmetrics==1.8.2",
+  "transformers==4.57.6",
+  "ultralytics==8.4.106"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.yaml", "*.yml", "*.txt", "*.md", "py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+
+[project.scripts]
+fireviewer-keyframes = "fireviewer_vision_runtime.mvp.vision.keyframe_cpu_service:main"
