@@ -12,7 +12,7 @@
 
 Cette revue documentaire ne renouvelle aucun test ni aucune réception. Les procédures, versions et preuves techniques ci-dessous conservent leur périmètre et leur date.
 
-> **Source active FV · private.** Détection, pointage, segmentation et extraction de keyframes. Voir [où travailler, quoi commiter et comment reprendre](ORGANISATION.md).
+> **Source active FV · public.** Détection, pointage, segmentation et extraction de keyframes. Voir [où travailler, quoi commiter et comment reprendre](ORGANISATION.md).
 
 Specialized model inference and video keyframe extraction.
 
@@ -20,7 +20,7 @@ Python package: `fireviewer_vision_runtime`. Version: `0.1.1`.
 
 ## Installation
 
-Install the versioned release wheels (including private FireViewer dependencies) from the release bundle. No sibling source checkout is required.
+Install the versioned release wheels (including versioned FireViewer dependencies) from the release bundle. No sibling source checkout is required.
 
 ```sh
 python -m pip install --find-links /path/to/release/wheels fireviewer-vision-runtime==0.1.1
@@ -43,4 +43,12 @@ Docker was deferred during the initial source delivery. The resumed private cont
 
 Commande CPU de sélection vidéo : `fireviewer-keyframes`. Détection, pointage et segmentation restent des adaptateurs de modèles externes. Les extras de modèle sont distincts de l’installation de base ; aucun poids n’est téléchargé à l’import.
 
-Les dépendances de base sont verrouillées avec hashes dans `requirements.lock.txt` (Python 3.13). Installer les wheels privés du même bundle via `--find-links`. Les extras lourds restent liés à leurs versions existantes et ne qualifient aucun GPU. Les tests de composant et leurs dépendances de test sont recensés dans le dossier unique de migration.
+Les dépendances de base sont verrouillées avec hashes dans `requirements.lock.txt` (Python 3.13). Installer les wheels versionnés du même bundle via `--find-links`. Les extras lourds restent liés à leurs versions existantes et ne qualifient aucun GPU. Les tests de composant et leurs dépendances de test sont recensés dans le dossier unique de migration.
+
+## Ouverture du code source — 19 septembre 2026
+
+Ce dépôt fait partie du premier lot de huit composants FIRE-VIEWER ouvert au public sur décision du mainteneur. Le code original reste sous **AGPL-3.0-or-later** et la documentation originale sous **CC BY 4.0**, avec les notices et droits tiers existants.
+
+Cette ouverture porte sur le code, son historique et les artefacts de développement déjà associés au dépôt. Les services déployés, comptes, données, corpus, modèles, secrets et autorisations des ressources externes gardent leur propre périmètre. Les sources des sites, du backend, des applications Android et de l’infrastructure restent privées. La visibilité publique ne constitue ni une nouvelle recette fonctionnelle ni un acte de cession des droits.
+
+[Inventaire et périmètre d’ouverture](https://github.com/fireviewer/Fireviewer_doc/blob/main/docs/public/OPEN_SOURCE.md).

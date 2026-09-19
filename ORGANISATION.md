@@ -1,6 +1,6 @@
 # Organisation de fireviewer-vision-runtime
 
-Source canonique : **[fireviewer/fireviewer-vision-runtime](https://github.com/fireviewer/fireviewer-vision-runtime)**. Responsabilité technique : **FV**. Accès : **private**.
+Source canonique : **[fireviewer/fireviewer-vision-runtime](https://github.com/fireviewer/fireviewer-vision-runtime)**. Responsabilité technique : **FV**. Accès : **public**.
 
 Détection, pointage, segmentation et extraction de keyframes.
 
@@ -22,7 +22,7 @@ Version de package déclarée dans les sources : **0.1.1**. Les tags et artefact
 python tools/ci.py verify
 ```
 
-Suivre les prérequis et verrous du dépôt. Les packages privés sont téléchargés avec les accès limités prévus ; aucun dossier source voisin ne doit être nécessaire. Les secrets et fichiers `.env` réels, données, poids, corpus et sorties restent hors Git.
+Suivre les prérequis et verrous du dépôt. Les packages versionnés sont téléchargés depuis leurs releases de référence ; les ressources restant privées nécessitent leurs accès propres ; aucun dossier source voisin ne doit être nécessaire. Les secrets et fichiers `.env` réels, données, poids, corpus et sorties restent hors Git.
 
 ## Droits, historique et limites
 
