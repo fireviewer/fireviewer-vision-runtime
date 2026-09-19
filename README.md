@@ -1,5 +1,17 @@
 # fireviewer-vision-runtime
 
+## Repères documentaires — 19 septembre 2026
+
+- **Rôle :** Inférence spécialisée : détection, pointing, segmentation et extraction de keyframes.
+- **Statut :** Actif — package v0.1.1. Modèles externes/poids séparés de l’installation de base.
+- **Entrées :** Images/vidéos référencées et checkpoints explicitement sélectionnés.
+- **Sorties :** Observations en espace image : boxes, masques, points, keyframes et métadonnées.
+- **Limites :** Une box ou un point image n’est pas une coordonnée terrain. Les tests CPU ne qualifient pas un modèle GPU ou sa performance terrain.
+
+[Fiche du dépôt](https://github.com/fireviewer/Fireviewer_doc/blob/main/docs/public/repositories/fireviewer-vision-runtime.md) · [Architecture](https://github.com/fireviewer/Fireviewer_doc/blob/main/docs/public/ARCHITECTURE.md) · [Statuts et vocabulaire](https://github.com/fireviewer/Fireviewer_doc/blob/main/docs/public/STATUTS_ET_VOCABULAIRE.md).
+
+Cette revue documentaire ne renouvelle aucun test ni aucune réception. Les procédures, versions et preuves techniques ci-dessous conservent leur périmètre et leur date.
+
 > **Source active FV · private.** Détection, pointage, segmentation et extraction de keyframes. Voir [où travailler, quoi commiter et comment reprendre](ORGANISATION.md).
 
 Specialized model inference and video keyframe extraction.
