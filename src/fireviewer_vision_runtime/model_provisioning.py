@@ -43,7 +43,12 @@ def _snapshot_path(cache_root: Path, spec: ModelSpec) -> Path:
 def _snapshot_weight_files(snapshot: Path) -> tuple[Path, ...]:
     if not snapshot.is_dir():
         return ()
-    weight_suffixes = {".safetensors", ".pt", ".pth"}
+    if "models--prism-ml--Ternary-Bonsai-2-27B-gguf" in snapshot.parts:
+        expected = {'Ternary-Bonsai-2-27B-PTQ1_0.gguf': 5946648928, 'Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf': 629246976}
+        return tuple(snapshot / name for name in expected) if all(
+            (snapshot / name).is_file() and (snapshot / name).stat().st_size == size
+            for name, size in expected.items()) else ()
+    weight_suffixes = {".safetensors", ".pt", ".pth", ".gguf"}
     return tuple(
         path
         for path in snapshot.rglob("*")
@@ -125,6 +130,10 @@ def provision_model_cache(
                 revision=spec.revision,
                 cache_dir=cache_root,
                 local_files_only=False,
+                allow_patterns=(
+                    ["Ternary-Bonsai-2-27B-PTQ1_0.gguf", "Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf"]
+                    if spec.model_id == "prism-ml/Ternary-Bonsai-2-27B-gguf" else None
+                ),
                 ignore_patterns=[
                     "*.bin",
                     "*.onnx",

@@ -7,7 +7,11 @@ from types import SimpleNamespace
 
 from fireviewer_vision_runtime.consensus import JudgeCandidate
 from fireviewer_contracts.contracts import WorkerInput
-from fireviewer_contracts.model_registry import CONSENSUS_JUDGE
+from fireviewer_contracts.model_registry import CONSENSUS_JUDGE, ModelSpec
+from fireviewer_vision_runtime.bonsai_judge import BonsaiConsensusJudgeAdapter
+
+LEGACY_JUDGE = ModelSpec(role="consensus_judge", model_id="Qwen/Qwen3-14B",
+                         revision="40c069824f4251a91eefaf281ebe4c544efd3e18")
 from fireviewer_vision_runtime.transformers_adapters import (
     QwenTextConsensusJudgeAdapter,
     TransformersAdapterFactory,
@@ -56,7 +60,8 @@ def test_factory_uses_text_only_a40_judge_for_qwen3_14b(tmp_path: Path) -> None:
         max_download_bytes=1024,
     )
 
-    judge = factory.create_consensus_judge(CONSENSUS_JUDGE)
+    judge = factory.create_consensus_judge(LEGACY_JUDGE)
+    assert isinstance(factory.create_consensus_judge(CONSENSUS_JUDGE), BonsaiConsensusJudgeAdapter)
 
     assert isinstance(judge, QwenTextConsensusJudgeAdapter)
 
@@ -68,7 +73,7 @@ def test_text_judge_cannot_promote_a_visual_disagreement(monkeypatch, tmp_path: 
         lambda: (fake_torch, object()),
     )
     judge = QwenTextConsensusJudgeAdapter(
-        CONSENSUS_JUDGE,
+        LEGACY_JUDGE,
         cache_root=tmp_path,
         fetcher=SimpleNamespace(),
     )

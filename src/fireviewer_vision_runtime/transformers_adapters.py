@@ -247,7 +247,7 @@ class RTDETRAdapter(_BaseAdapter):
                         predictions = unletterbox(canvas_predictions, geometry)
                     else:
                         inputs = self.processor(images=rgb, return_tensors="pt").to("cuda")
-                        with torch.inference_mode(), nullcontext():
+                        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.float16):
                             outputs = self.model(**inputs)
                         predictions = self.processor.post_process_object_detection(
                             outputs, threshold=0.25, target_sizes=[(height, width)]
@@ -336,12 +336,12 @@ class FlorenceAdapter(_BaseAdapter):
     def load(self) -> None:
         torch, transformers = _torch_runtime()
         self.processor = transformers.AutoProcessor.from_pretrained(
-            self.model_path, local_files_only=True, trust_remote_code=True
+            self.model_path, local_files_only=True, trust_remote_code=False
         )
-        self.model = transformers.AutoModelForCausalLM.from_pretrained(
+        self.model = transformers.Florence2ForConditionalGeneration.from_pretrained(
             self.model_path,
             local_files_only=True,
-            trust_remote_code=True,
+            trust_remote_code=False,
             dtype=torch.float16,
             low_cpu_mem_usage=True,
         ).to("cuda")
@@ -379,7 +379,7 @@ class FlorenceAdapter(_BaseAdapter):
                 with self.fetcher.download(url) as image_path, Image.open(image_path) as image:
                     rgb = image.convert("RGB")
                     inputs = self.processor(text=prompt, images=rgb, return_tensors="pt")
-                    inputs = {key: value.to("cuda") for key, value in inputs.items()}
+                    inputs = {key: value.to(device="cuda", dtype=torch.float16) if value.is_floating_point() else value.to("cuda") for key, value in inputs.items()}
                     with torch.inference_mode():
                         generated = self.model.generate(
                             **inputs, max_new_tokens=256, do_sample=False
@@ -627,7 +627,7 @@ for the private draft only as a reported claim; it must not be rewritten as conf
 license controls republication, not whether the media may be privately analysed.
 declared_observation contains the contributor's unverified statement and declared time/location.
 It may support a metadata-attributed reported claim, but never a camera pose or inferred fire point.
-Place/time fields: literal, evidence_kind, evidence_id. JSON only."""
+Place/time fields: literal, evidence_kind, evidence_id. evidence_kind MUST be one of image, frame, transcript_segment, article_text, metadata. certainty MUST be directly_visible, explicitly_written, or explicitly_spoken. Use input_id for article_text evidence_id. JSON only."""
 
     def load(self) -> None:
         torch, transformers = _torch_runtime()
@@ -663,7 +663,10 @@ Place/time fields: literal, evidence_kind, evidence_id. JSON only."""
         tuple[ExplicitLiteral, ...],
         tuple[ExplicitLiteral, ...],
     ]:
-        payload = json.loads(text.strip())
+        clean = text.strip()
+        if clean.startswith("```json\n") and clean.endswith("\n```"):
+            clean = clean[8:-4]
+        payload = json.loads(clean)
         if not isinstance(payload, dict) or set(payload) != {
             "observations",
             "explicit_places",
@@ -727,6 +730,8 @@ Place/time fields: literal, evidence_kind, evidence_id. JSON only."""
                 transcript = accumulated[item.input_id].transcript
                 context_payload = {
                     "article_text": item.article_text,
+                    "input_id": item.input_id,
+                    "text_evidence_id": item.input_id,
                     "source_context": (
                         item.source_context.model_dump(mode="json", exclude_none=True)
                         if item.source_context
@@ -761,12 +766,13 @@ Place/time fields: literal, evidence_kind, evidence_id. JSON only."""
                     messages,
                     tokenize=True,
                     add_generation_prompt=True,
+                    enable_thinking=False,
                     return_dict=True,
                     return_tensors="pt",
                 ).to(self.model.device)
                 with torch.inference_mode():
                     generated = self.model.generate(
-                        **inputs, max_new_tokens=512, do_sample=False, temperature=None
+                        **inputs, max_new_tokens=1536, do_sample=False, temperature=None
                     )
                 trimmed = generated[:, inputs.input_ids.shape[1] :]
                 response = self.processor.batch_decode(
@@ -1179,6 +1185,9 @@ class TransformersAdapterFactory:
     ) -> QwenConsensusJudgeAdapter | QwenTextConsensusJudgeAdapter:
         if spec.role != "consensus_judge":
             raise ValueError("consensus judge factory requires a consensus_judge model")
+        if spec.model_id == "prism-ml/Ternary-Bonsai-2-27B-gguf":
+            from fireviewer_vision_runtime.bonsai_judge import BonsaiConsensusJudgeAdapter
+            return BonsaiConsensusJudgeAdapter(spec, cache_root=self.cache_root, fetcher=self.fetcher)
         adapter_type: type[QwenConsensusJudgeAdapter | QwenTextConsensusJudgeAdapter]
         adapter_type = (
             QwenTextConsensusJudgeAdapter
