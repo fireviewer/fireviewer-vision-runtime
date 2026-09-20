@@ -35,7 +35,7 @@ def private_dependencies() -> Path:
     cache = CACHE / "wheels"
     cache.mkdir(parents=True, exist_ok=True)
     for entry in CONFIG["dependencies"]:
-        target = cache / entry["asset"]
+        target = cache / entry.get("source_asset", entry["asset"])
         if entry.get("source_commit"):
             commit = entry["source_commit"]
             if re.fullmatch(r"[0-9a-f]{40}", commit) is None:
@@ -102,6 +102,8 @@ def verify() -> None:
         for entry in CONFIG["dependencies"]:
             if entry.get("source_commit"):
                 source = source.replace(entry["sha256"], entry["built_sha256"])
+                if entry.get("source_requirement"):
+                    source = source.replace(entry["previous_requirement"], entry["source_requirement"])
         blocks = re.split(r"(?=^[A-Za-z0-9])", source, flags=re.M)
         own_name = re.sub(r"[-_.]+", "-", project["name"]).lower()
         filtered = "".join(block for block in blocks if not (
